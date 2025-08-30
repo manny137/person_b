@@ -13,41 +13,58 @@ from datetime import datetime
 
 class ClaimExtractor:
     """Extract claims from text using spaCy + regex patterns"""
-    
+
     def __init__(self):
         """Initialize with spaCy model and regex patterns"""
         try:
             self.nlp = spacy.load("en_core_web_sm")
         except OSError:
             raise RuntimeError("Please install spaCy English model: python -m spacy download en_core_web_sm")
-        
+
         # Regex patterns
+        date_patterns = [
+            # Month DD, YYYY (e.g., Jan 01, 2023)
+            r'\b(?:Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)[a-z]*\s+\d{1,2},?\s+\d{4}\b',
+            # DD Month YYYY (e.g., 01 Jan 2023)
+            r'\b\d{1,2}\s+(?:Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)[a-z]*\s+\d{4}\b',
+            # Month YYYY (e.g., January 2023)
+            r'\b(?:Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)[a-z]*\s+\d{4}\b',
+            # MM/DD/YY(YY) or MM-DD-YY(YY)
+            r'\b\d{1,2}[/-]\d{1,2}[/-]\d{2,4}\b',
+            # YYYY/MM/DD or YYYY-MM-DD
+            r'\b\d{4}[/-]\d{1,2}[/-]\d{1,2}\b',
+            # Q1 FY2024 or Q1 24
+            r'\bQ[1-4]\s+(?:FY)?\d{2,4}\b',
+            # YYYY (e.g., 2023) - place last as it's broad
+            r'\b(19|20)\d{2}\b'
+        ]
+
         self.patterns = {
-            'ticker': re.compile(r'\b[A-Z]{1,5}(?:\.[A-Z]{1,3})?\b'),
+            'ticker': re.compile(r'\b(?!CEO\b|CFO\b|CTO\b|COO\b|CIO\b|USA\b|UK\b|EU\b|GDP\b|EPS\b)[A-Z]{1,5}(?:\.[A-Z]{1,3})?\b'),
             'percent': re.compile(r'-?\d+(?:\.\d+)?%'),
-            'money': re.compile(r'[\$₹€£]\s*\d+(?:,\d{3})*(?:\.\d{2})?(?:\s*(?:billion|million|thousand|B|M|K))?'),
+            'money': re.compile(r'[\$₹€£]\s*\d+(?:\.\d+)?(?:,\d{3})*(?:\s*(?:billion|million|thousand|B|M|K))?'),
             'number': re.compile(r'-?\d+(?:,\d{3})*(?:\.\d+)?(?:\s*(?:billion|million|thousand|B|M|K))?'),
-            'date': re.compile(r'\b(?:Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)[a-z]*\s+\d{1,2},?\s+\d{4}|\b\d{1,2}[/-]\d{1,2}[/-]\d{2,4}|\b\d{4}[/-]\d{1,2}[/-]\d{1,2}|\bQ[1-4]\s+(?:FY)?\d{2,4}')
+            'date': re.compile('|'.join(date_patterns))
         }
-    
+
     def extract_sentence_claims(self, text: str) -> List[Dict[str, Any]]:
         """
         Extract claims from each sentence in text
-        
+
         Args:
             text: Input text
-            
+
         Returns:
             List of sentence claims with entities, numbers, dates, etc.
         """
         doc = self.nlp(text)
         sentences = []
-        
+
         for sent in doc.sents:
             sent_text = sent.text.strip()
             if not sent_text:
                 continue
-                
+
             # Extract entities using spaCy
             entities = []
             for ent in sent.ents:
@@ -58,7 +75,7 @@ class ClaimExtractor:
                         'start': ent.start_char,
                         'end': ent.end_char
                     })
-            
+
             # Extract patterns using regex
             claims = {
                 'entities': entities,
@@ -68,16 +85,16 @@ class ClaimExtractor:
                 'numbers': self._extract_pattern('number', sent_text),
                 'dates': self._extract_dates(sent_text)
             }
-            
+
             sentences.append({
                 'text': sent_text,
                 'start': sent.start_char,
                 'end': sent.end_char,
                 'claims': claims
             })
-        
+
         return sentences
-    
+
     def _extract_pattern(self, pattern_name: str, text: str) -> List[Dict[str, Any]]:
         """Extract matches for a specific pattern"""
         matches = []
@@ -88,12 +105,19 @@ class ClaimExtractor:
                 'end': match.end()
             })
         return matches
-    
+
     def _extract_dates(self, text: str) -> List[Dict[str, Any]]:
         """Extract and parse dates from text"""
         dates = []
         for match in self.patterns['date'].finditer(text):
             date_text = match.group()
+            # Avoid matching numbers that look like years but are not dates
+            if date_text.isdigit() and len(date_text) == 4:
+                if not any(char.isalpha() for char in text.replace(date_text, "")):
+                    # If the text is just a number, it's probably not a date.
+                    # This is a simple heuristic.
+                    continue
+
             parsed = dateparser.parse(date_text)
             dates.append({
                 'text': date_text,
@@ -107,15 +131,15 @@ class ClaimExtractor:
 def demo():
     """Demo the claim extractor"""
     extractor = ClaimExtractor()
-    
+
     test_text = """
     Apple Inc. (AAPL) reported 15.8% revenue growth in Q2 2024, reaching $123.5 billion.
     The company's stock jumped 25% on March 15, 2024 after the announcement.
-    CEO Tim Cook said the results were "absolutely outstanding" with no doubt about future growth.
+    CEO Tim Cook said the results were "absolutely outstanding" with no doubt about future growth in 2025.
     """
-    
+
     sentences = extractor.extract_sentence_claims(test_text)
-    
+
     for i, sent in enumerate(sentences):
         print(f"\nSentence {i+1}: {sent['text']}")
         print(f"Entities: {len(sent['claims']['entities'])}")

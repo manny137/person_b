@@ -20,11 +20,12 @@ speculative:
     - indicates
     - perhaps
     - allegedly
-  
+
   absolutes:
     - always
     - never
     - guaranteed
+    - guarantee
     - undoubtedly
     - obviously
     - certain
@@ -36,7 +37,7 @@ speculative:
     - without doubt
     - conclusive
     - unquestionable
-  
+
   weights:
     hedge: 1.0
     absolute: 1.5
@@ -45,31 +46,34 @@ sanity:
   rules:
     percent_jump:
       enabled: true
-      threshold: 300  # % change in one day
-    
+      threshold: 300 # % change in one day
+
     future_past_conflict:
       enabled: true
-    
+
     currency_mismatch:
       enabled: true
-    
+
     unit_absurdity:
       enabled: true
-  
+
   thresholds:
     human_height_cm: 300
+    human_weight_kg: 300 # New
+    vehicle_speed_kph: 400 # New
+    distance_km: 50000 # New
     temperature_celsius: 1000
     percent_max: 100
-    market_cap_billion: 50000  # Unrealistic market cap
-  
+    market_cap_billion: 50000 # Unrealistic market cap
+
   currencies:
     symbols:
       "$": "USD"
-      "₹": "INR" 
+      "₹": "INR"
       "€": "EUR"
       "£": "GBP"
-    
-    conversions:  # Rough exchange rates for sanity checks
+
+    conversions: # Rough exchange rates for sanity checks
       USD_to_INR: 83
       EUR_to_USD: 1.1
       GBP_to_USD: 1.25
@@ -77,7 +81,7 @@ sanity:
 paraphrase:
   synonyms:
     increase: ["rise", "grow", "surge"]
-    decrease: ["fall", "drop", "decline"] 
+    decrease: ["fall", "drop", "decline"]
     company: ["firm", "corporation", "business"]
     market: ["sector", "industry", "segment"]
     report: ["announce", "state", "reveal"]
