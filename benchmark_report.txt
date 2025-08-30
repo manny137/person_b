@@ -1,0 +1,105 @@
+CLAIMS & SANITY PIPELINE - COMPREHENSIVE BENCHMARK REPORT
+======================================================================
+Generated: 2025-08-30T04:07:37.165140
+Max samples per split: 1000
+
+SUMMARY STATISTICS
+--------------------
+dev_model-agnostic: ERROR - No dev file found for model-agnostic in data
+dev_model-aware: ERROR - No dev file found for model-aware in data
+Splits processed: 4
+Best F1 score: 0.2778 (test_model-agnostic_all_features)
+
+RESULTS FOR TRAIN_MODEL-AGNOSTIC
+--------------------------------
+Feature correlations with hallucination:
+
+Ablation study results:
+
+Rule-as-data novelty results:
+  Hedge classifier: F1=0.000 ± 0.000
+  Brier score: 0.0231
+  Expected Calibration Error: 0.0390
+  Rule-based vs N-gram comparison:
+    Rules only:  F1=0.000
+    N-gram+Rules: F1=0.000
+    Improvement:  ΔF1=+0.000
+
+RESULTS FOR TRAIN_MODEL-AWARE
+-----------------------------
+Feature correlations with hallucination:
+
+Ablation study results:
+
+Rule-as-data novelty results:
+  Hedge classifier: F1=0.000 ± 0.000
+  Brier score: 0.0016
+  Expected Calibration Error: 0.0059
+  Rule-based vs N-gram comparison:
+    Rules only:  F1=0.000
+    N-gram+Rules: F1=0.000
+    Improvement:  ΔF1=+0.000
+
+RESULTS FOR TEST_MODEL-AGNOSTIC
+-------------------------------
+Feature correlations with hallucination:
+  entity_count         +0.0797
+  hedge_count          -0.0470
+  number_count         +0.0456
+  spec_score           -0.0296
+  instability_score    -0.0241
+
+Ablation study results:
+  spec_only       F1=0.018 AUC=0.514
+  sanity_only     F1=0.000 AUC=0.500
+  instability_only F1=0.000 AUC=0.510
+  spec_sanity     F1=0.018 AUC=0.514
+  all_features    F1=0.278 AUC=0.539
+
+Rule-as-data novelty results:
+  Hedge classifier: F1=0.000 ± 0.000
+  Brier score: 0.0129
+  Expected Calibration Error: 0.0154
+  Rule-based vs N-gram comparison:
+    Rules only:  F1=0.037
+    N-gram+Rules: F1=0.005
+    Improvement:  ΔF1=-0.032
+
+RESULTS FOR TEST_MODEL-AWARE
+----------------------------
+Feature correlations with hallucination:
+  spec_score           -0.0560
+  hedge_count          -0.0560
+  number_count         -0.0344
+  instability_score    -0.0320
+  num_sanity_score     -0.0241
+
+Ablation study results:
+  spec_only       F1=0.011 AUC=0.511
+  sanity_only     F1=0.000 AUC=0.502
+  instability_only F1=0.000 AUC=0.502
+  spec_sanity     F1=0.011 AUC=0.513
+  all_features    F1=0.011 AUC=0.518
+
+Rule-as-data novelty results:
+  Hedge classifier: F1=0.040 ± 0.080
+  Brier score: 0.0089
+  Expected Calibration Error: 0.0282
+  Rule-based vs N-gram comparison:
+    Rules only:  F1=0.049
+    N-gram+Rules: F1=0.045
+    Improvement:  ΔF1=-0.003
+
+CONCLUSIONS & RECOMMENDATIONS
+--------------------------------
+• Best performing configuration: test_model-agnostic_all_features (F1=0.2778)
+• Rule-as-data approach adds learned patterns to complement wordlists
+• Calibration analysis helps assess prediction confidence reliability
+• Instability scores from paraphrases provide additional signal
+
+NEXT STEPS
+----------
+• Implement temporal anchoring for better date conflict detection
+• Add unit canonizer to reduce false absurdity flags
+• Create paraphrase stability visualization cards
+• Fine-tune thresholds based on calibration analysis

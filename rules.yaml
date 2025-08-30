@@ -1,0 +1,85 @@
+# rules.yaml - Configuration for claims & sanity pipeline
+
+speculative:
+  hedges:
+    - may
+    - might
+    - could
+    - suggests
+    - appears
+    - likely
+    - possibly
+    - reportedly
+    - estimate
+    - estimates
+    - potential
+    - probable
+    - seem
+    - seems
+    - indicate
+    - indicates
+    - perhaps
+    - allegedly
+  
+  absolutes:
+    - always
+    - never
+    - guaranteed
+    - undoubtedly
+    - obviously
+    - certain
+    - certainly
+    - proof
+    - irrefutable
+    - definitely
+    - absolutely
+    - without doubt
+    - conclusive
+    - unquestionable
+  
+  weights:
+    hedge: 1.0
+    absolute: 1.5
+
+sanity:
+  rules:
+    percent_jump:
+      enabled: true
+      threshold: 300  # % change in one day
+    
+    future_past_conflict:
+      enabled: true
+    
+    currency_mismatch:
+      enabled: true
+    
+    unit_absurdity:
+      enabled: true
+  
+  thresholds:
+    human_height_cm: 300
+    temperature_celsius: 1000
+    percent_max: 100
+    market_cap_billion: 50000  # Unrealistic market cap
+  
+  currencies:
+    symbols:
+      "$": "USD"
+      "₹": "INR" 
+      "€": "EUR"
+      "£": "GBP"
+    
+    conversions:  # Rough exchange rates for sanity checks
+      USD_to_INR: 83
+      EUR_to_USD: 1.1
+      GBP_to_USD: 1.25
+
+paraphrase:
+  synonyms:
+    increase: ["rise", "grow", "surge"]
+    decrease: ["fall", "drop", "decline"] 
+    company: ["firm", "corporation", "business"]
+    market: ["sector", "industry", "segment"]
+    report: ["announce", "state", "reveal"]
+    strong: ["robust", "solid", "healthy"]
+    weak: ["poor", "soft", "sluggish"]
